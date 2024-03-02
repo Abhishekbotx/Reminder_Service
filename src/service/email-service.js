@@ -5,7 +5,10 @@ const repo = new TicketRepository();
 const sendbasicemail = async (mailFrom, mailTo, subject, body) => {
     try {
         const response = await sender.sendMail({
-            mailFrom, mailTo, subject, body
+            from: mailFrom,
+            to: mailTo,
+            subject: subject,
+            text: body
         })
         return response
     } catch (error) {
@@ -14,15 +17,31 @@ const sendbasicemail = async (mailFrom, mailTo, subject, body) => {
 }
 
 const createTicket = async (data) => {
-    const ticket = await repo.create({
-        subject: data.subject,
-        content: data.content,
-        recepientEmail: data.email
-    })
+    try {
+        const ticket = await repo.create({
+            subject: data.subject,
+            content: data.content,
+            recipientEmail: data.recipientEmail,
+            notificationTime:data.notificationTime
+        })
+        return ticket
+    } catch (error) {
+        throw error
+    }
 }
 
-const sendmail = async () => {
-
+const fetchPendingEmails=async()=>{
+    const response=await repo.get({status:'Pending'});
+    return response
 }
 
-module.exports(createTicket,sendbasicemail)
+const updateTicket=async(ticketId,data)=>{
+    try {
+        const ticket=await repo.update(ticketId,data)
+        return ticket
+    } catch (error) {
+        throw error
+    }
+}
+
+module.exports={createTicket,sendbasicemail,fetchPendingEmails,updateTicket}

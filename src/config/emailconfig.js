@@ -1,9 +1,9 @@
 const nodemailer = require('nodemailer');
 
 const { MAIL_USER, MAIL_PASS,MAIL_HOST } = require('./serverconfig');
-console.log(MAIL_USER, MAIL_PASS,MAIL_HOST);
+// console.log(MAIL_USER, MAIL_PASS,MAIL_HOST);
 const sender = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: MAIL_HOST,
     port: 587,
     secure: false, 
     auth: {
