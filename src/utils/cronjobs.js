@@ -13,7 +13,7 @@ const setupcron=()=>{
     response.forEach((element) => {
         // 
         const mailsender= sender.sendMail({
-        from: '"SKY Airlines 👻"<abhi> ',
+        from: '"AIRNET Airlines 👻"<abhi> ',
         to: element.recipientEmail,
         subject: "testing",
         text:`  Hello  `,

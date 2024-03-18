@@ -1,33 +1,31 @@
-const express=require('express');
-const app=express();
-const {PORT}=require('./config/serverconfig')
-const sender=require('../src/config/emailconfig')
-const{template}=require('./pct')
-const cron=require('node-cron');
-// const fs = require('fs'); 
-// const path=require('path')
-// const filePath = path.join(__dirname, 'index.js'); 
+const express = require('express');
+const bodyParser = require('body-parser');
 
+const { PORT } = require('./config/serverconfig');
 
-// const emailTemplate = fs.readFileSync(filePath, 'utf8');
-// console.log(filePath)
-// console.log(emailTemplate)
-const serverstarter=()=>{
-    app.listen(PORT,async()=>{
-        console.log(`server started on port: ${PORT}`)
-        const mailsender=await sender.sendMail({
-            from: '"STUDY NOTION 👻" ',
-            to: 'Abhishekbotx@gmail.com',
-            subject: "testing",
-            text:`   <h1>hello</h1>`
-            
-        })
-         
-        console.log(mailsender)
+const TicketController = require('./controller/email-controller');
+const EmailService = require('./service/email-service');
 
+const jobs = require('./utils/cronjobs');
+const { subscribeMessage, createChannel } = require('./utils/messageQueue');
+const { REMINDER_BINDING_KEY } = require('./config/serverconfig')
+
+const setupAndStartServer = async () => {
+    const app = express();
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({extended: true}));
+
+    app.post('/api/v1/tickets', TicketController.create);
+
+    const channel = await createChannel();
+    subscribeMessage(channel, EmailService.subscribeEvents, REMINDER_BINDING_KEY);
+
+    app.listen(PORT, () => {
+        console.log(`Server started at port ${PORT}`);
+        // jobs();
         
-
-    })
+    });
 }
 
-serverstarter()
+setupAndStartServer();
+
